@@ -15,9 +15,16 @@ namespace WinHostEditor
         private String HostsPath = null;
         private List<DataRow> Rows = null;
 
+        private Sunisoft.IrisSkin.SkinEngine se = null;
         public MainForm()
         {
             InitializeComponent();
+
+            se = new Sunisoft.IrisSkin.SkinEngine();
+            se.Active = true;
+
+            se.SkinAllForm = true;
+            se.SkinFile = "ref.dat";
         }
 
         private int GetGridIndex(int Num)
@@ -51,6 +58,8 @@ namespace WinHostEditor
         private void dataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             int idx;
+
+            if (e.ColumnIndex > 2 || e.RowIndex >= dataGridView.Rows.Count) return;
             
             // 域名检测
             if (e.ColumnIndex == 1)
@@ -335,6 +344,27 @@ namespace WinHostEditor
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start("http://xcoder.in/");
+        }
+
+        private void dataGridView_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        {
+        }
+
+        private void dataGridView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                dataGridView.EndEdit();
+
+                DataGridViewSelectedRowCollection sRows = dataGridView.SelectedRows;
+
+                for (int i = 0; i < sRows.Count; i++)
+                {
+                    int idx = GetDataIndex(Convert.ToInt32(sRows[i].Cells[0].Value.ToString()));
+                    if (idx == -1) continue;
+                    Rows.RemoveAt(idx);
+                }
+            }
         }
     }
 }
